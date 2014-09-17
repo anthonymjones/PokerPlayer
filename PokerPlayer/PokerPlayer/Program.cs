@@ -13,6 +13,12 @@ namespace PokerPlayer
             var Deck = new Deck();
 
             Deck.Shuffle();
+
+            PokerPlayer player1 = new PokerPlayer(Deck.Deal(5));
+            player1.ShowHand();
+            Console.WriteLine();
+            
+            Console.ReadKey();
         }
     }
 }

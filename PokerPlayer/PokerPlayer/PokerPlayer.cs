@@ -23,84 +23,115 @@ namespace PokerPlayer
     class PokerPlayer
     {
         //STEP 1. Delcare Properties
-        public List<Cards> hand { get; set; }
+        public List<Cards> Hand { get; set; }
+        public PokerHands PokerHands { get; set; }
+
 
         //STEP 2. Constructors
-        public PokerPlayer() 
-        { 
-        
+        public PokerPlayer(List <Cards> Hand) 
+        {
+            this.PokerHands = (PokerHands)0;
+            this.Hand = Hand;
         }
 
         //STEP 3. Methods and Functions
-        public void DrawHand()
+        public void DrawHand(List<Cards> HandDealt)
         {
-            //delcare new deck
-            var Deck = new Deck();
-            //shuffle the cards
-            Deck.Shuffle();
-            //deal cards
-            List<Cards> ListofCards = new List<Cards>();
-            ListofCards = Deck.Deal(5);
-            Console.WriteLine("Dealt Cards: ");
-            foreach (var item in ListofCards)
-            {
-                item.DealFromDeck();
-            }
-
+            PokerHands = (PokerHands)0;
+            Hand = HandDealt;
         }
 
+        public bool RoyalFlush()
+        {
+            return this.StraightFlush() && this.Hand.Any(x => x.Rank == Rank.Ace);
+        }
+        public bool StraightFlush()
+        {
+            return this.Straight() && this.HasFlush();
+        }
+        public bool FourOfAKind()
+        {
+            return this.Hand.GroupBy(x => x.Rank).Count() == 2 && this.Hand.GroupBy(x => x.Rank).Any(x => x.Count() == 4);
+
+        }
+        public bool FullHouse()
+        {
+            return this.Hand.GroupBy(x => x.Rank).Count() == 2 && this.Hand.GroupBy(x => x.Rank).Any(x => x.Count() == 3);
+
+        }
         public bool HasFlush()
         {
             //how to select just one property of an object and get only unique (distinct) values
             //selects only the suits of our cards, takes only the distinct values, and counts them.
             //if there is only 1 suit, it must be a flush
-        //.Select > Suit .Distint > .Count(only 1) = true
-            return this.hand.Select(x => x.Suit).Distinct().Count() == 1;
-
+            //.Select > Suit .Distint > .Count(only 1) = true
+            return this.Hand.Select(x => x.Suit).Distinct().Count() == 1;
         }
-
-        public bool HasOnePair()
+        public bool Straight()
         {
-            //Grouping cards by rank. The Rank is then stored in the Key
-
-            return this.hand.Select(x => x.Rank).Distinct().Count() == 4;
+            return this.Hand.Select(x => x.Rank).Distinct().Count() == 5 && (int)this.Hand.OrderByDescending(x => x.Rank).First().Rank - (int)this.Hand.OrderByDescending(x => x.Rank).Last().Rank == 4;
         }
-
         public bool ThreeOfAKind()
         {
-            //Grouping cards by rank. The Rank is then stored in the Key value
-            //Then ordering the cards by descending order by the number of occurences of each rank
-
-            //filter the tmp list to find a group where there are three instances of a single value.
-            //The .Any() returns a boolean value on if there is a value in the filtered list
-            
-            //GroupBy(x=>x.Rank)
-            //IEnum (int, Card)
-            //Key - 7, 5, 8  Values - 7D, 7C, 7S, 5H, 8D
-            // 7 = 7D, 7C, 7S
-            // 5 = 5H
-            // 8 = 8D
-
-            //Group.Where(x => x.Count == 3)
-
-            //Group.Any(x => x.Count ==3)
-
-            IEnumerable<IGrouping<Rank, Cards>> groupRankList = this.hand.GroupBy(x => x.Rank);
-            return groupRankList.Where(x => x.Count() == 3).Any();
+                IEnumerable<IGrouping<Rank, Cards>> groupRankList = this.Hand.GroupBy(x => x.Rank);
+                return groupRankList.Where(x => x.Count() == 3).Any();            
         }
+        public bool TwoPair()
+        {
+            return this.Hand.GroupBy(x => x.Rank).Count() == 3 && this.Hand.GroupBy(x => x.Rank).Any(x => x.Count() == 2);
 
-
-            //return this
-            public bool RoyalFlush
+        }
+        public bool HasOnePair()
+        {
+                return this.Hand.Select(x => x.Rank).Distinct().Count() == 4;   
+        }
+        public bool HighCard()
+        {
+            return this.Hand.OrderBy(x => x.Rank).Distinct().Count() == 5;
+        }
+        public void ShowHand()
+        {
+            if (RoyalFlush())
             {
-               this.hand.Where(x=> x.)Select(x => x.Suit).Distinct().Count() == 1 && this.hand.OrderByDescending(x => x.First == Ace).Last == Ten);
-	{
-		 return true;
-	}
-                
-
+                PokerHands = (PokerHands)9;
             }
-
-    
+            else if (StraightFlush())
+            {
+                PokerHands = (PokerHands)8;
+            }
+            else if (FourOfAKind())
+            {
+                PokerHands = (PokerHands)7;
+            }
+            else if (FullHouse())
+            {
+                PokerHands = (PokerHands)6;
+            }
+            else if (HasFlush())
+            {
+                PokerHands = (PokerHands)5;
+            }
+            else if (Straight())
+            {
+                PokerHands = (PokerHands)4;
+            }
+            else if (ThreeOfAKind())
+            {
+                PokerHands = (PokerHands)3;
+            }
+            else if (TwoPair())
+            {
+                PokerHands = (PokerHands)2;
+            }
+            else if (HasOnePair())
+            {
+                PokerHands = (PokerHands)1;
+            }
+            Console.WriteLine(PokerHands);
+        }
+        public void GetHand()
+        {
+            Console.WriteLine(this.Hand);
+        }
     }
 }
